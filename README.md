@@ -1,6 +1,6 @@
 # 미투버튼 크롬 확장
 
-![미투버튼 설치 예](https://github.com/codian/metoo-for-chrome/raw/master/images/icon128.png)
+![미투버튼 설치 예](https://github.com/codian/metoo-for-chrome/raw/master/images/screen_shot.png)
 
 미투버튼 크롬 확장은 크롬 브라우져에 미투버튼을 추가한다. 
 미투버튼 크롬 확장을 통해 방문하는 페이지를 미투데이 친구에게 쉽게 공유할 수 있다.

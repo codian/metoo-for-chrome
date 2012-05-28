@@ -73,7 +73,6 @@ Metoo.Button.updateMetoo = function(tab) {
   Metoo.API.getWebpageInfo(tab.url, {
     success: function(data) {
       var metoo;
-      var url;
       var normalizedUrl;
       if (data.result.postInfoList.length > 0) {
         metoo = data.result.postInfoList[0].metooCount;

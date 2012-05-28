@@ -16,7 +16,7 @@
 
 아직 정식 릴리즈 하지 않아 크롬 웹스토어에 올리지는 않아 수동으로 설치해야 한다.
 
-1. [압축파일](https://github.com/me2day/metoo_for_chrome/archives/master)을 다운로드한다.
+1. [압축파일](https://github.com/codian/metoo-for-chrome/archives/master)을 다운로드한다.
 2. 적당한 디렉토리에 압축을 푼다.
 3. 크롬 메뉴 > Tool > Extension 을 선택해 Extension 관리페이지를 띄운다.
 4. Extension 관리페이지 우상단의 "Developer Mode" 를 선택한다.

@@ -37,7 +37,8 @@ Metoo.Button.init = function() {
 Metoo.Button.handleRequest = function (request, sender, sendResponse) {
   // console.log("Metoo.Button.handleRequest:", request, sender, sendResponse);
   
-  if (request.req == "toggleMetoo") {
+  switch (request.req) {
+  case "toggleMetoo":
     chrome.tabs.getSelected(request.window.id, function(tab) {
       console.log("\t", tab);
       // 미투하기 
@@ -45,9 +46,20 @@ Metoo.Button.handleRequest = function (request, sender, sendResponse) {
         sendResponse(resp);
       });
     });
-  } else {
+    break;
+    
+  case "getPageInfo":
+    var pageInfo = Metoo.PageInfo.get(request.url);
+    sendResponse({
+      error: 0,
+      result: pageInfo
+    });
+    break;
+    
+  default:
     console.log("Unknown request to Metoo.Button.handleRequest: ", 
                 request, sender, sendResponse);
+    break;
   }
 };
 
@@ -72,14 +84,25 @@ Metoo.Button.updateMetoo = function(tab) {
 
   Metoo.API.getWebpageInfo(tab.url, {
     success: function(data) {
-      var metoo;
-      var normalizedUrl;
+      console.log(data);
+      
+      // metooStatus 
+      //   "1" - 이미 미투한 상태
+      //   "2" - 미투하지 않은 상태
+      //   "9" - 알수없는 상태(비로그인)
+      var metoo, metooStatus, normalizedUrl, postId, postUrl;
       if (data.result.postInfoList.length > 0) {
         metoo = data.result.postInfoList[0].metooCount;
-        normalizedUrl = data.result.postInfoList[0].url
+        metooStatus = data.result.postInfoList[0].metooStatus;
+        normalizedUrl = data.result.postInfoList[0].url;
+        postId = data.result.postInfoList[0].postId;
+        postUrl = data.result.postInfoList[0].permalink;
       } else {
         metoo = 0;
+        metooStatus = "2";
         normalizedUrl = null;
+        postId = null;
+        postUrl = null;
       }
       var st = Metoo.API.getSecurityToken(data);
       
@@ -88,6 +111,9 @@ Metoo.Button.updateMetoo = function(tab) {
         normalizedUrl: normalizedUrl,
         tabId: tab.id,
         metooCount: metoo,
+        metooStatus: metooStatus,
+        postId: postId,
+        postUrl: postUrl,
         securityToken: st
       });
       
@@ -120,8 +146,12 @@ Metoo.Button.metoo = function(tab, sendResponse) {
       
       Metoo.PageInfo.set({
         url: tab.url,
+        tabId: tab.id,
         normalizedUrl: data.result.postInfo.url,
-        metooCount: metoo
+        metooCount: metoo,
+        metooStatus: data.result.postInfo.metooStatus,
+        postId: data.result.postInfo.postId,
+        postUrl: data.result.postInfo.permalink
       });
       
       sendResponse({

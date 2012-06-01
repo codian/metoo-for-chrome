@@ -90,6 +90,40 @@ Metoo.API.metoo = function(url, token, options) {
   });
 };
 
+Metoo.API.getMetooFriendList = function(postId, count, options) {
+  options = Metoo.API.defaultOptions(options);
+
+  params = {
+    'post_id': postId,
+    'count': count
+  };
+  
+  var errorHandler = function(data) {
+    options.error(data);
+    console.log("ERROR:", data);
+  }
+  
+  $.ajax({
+    url: "http://plugin.me2day.net/v1/metoo/get_metoo_friend_list.json",
+    type: "GET",
+    data: params,
+    complete: function(jqXHR, textStatus) {
+      Metoo.API.writeLog("CALL(" + "textStatus" + ") v1/plugin/get_metoo_friend_list.json", {
+        "params": params,
+        "responseText": jqXHR.responseText
+      });
+    },
+    success: function(data) {
+      if (data.code != 0) {
+        errorHandler(data.message);
+        return
+      }
+      options.success(data);
+    },
+    error: errorHandler
+  });
+}
+
 Metoo.API.getSecurityToken = function(data) {
   if (data && data.result && data.result.securityToken) {
     // return first element in data.result.securityToken

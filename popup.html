@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="stylesheets/popup.css" type="text/css" />
     <script src="javascripts/jquery-1.7.2.min.js" type="application/javascript"></script>
     <script src="javascripts/metoo_plugin.js" type="application/javascript"></script>
+    <script src="javascripts/page_info.js" type="application/javascript"></script>
     <script src="javascripts/popup.js" type="application/javascript"></script>
     <script type="application/javascript">
       document.addEventListener("DOMContentLoaded", Metoo.Popup.init, false);
@@ -13,11 +14,20 @@
   </head>
   <body>
     <div id="content">
-      <div id="loading">
-        <p>Please wait...&nbsp;<img id="throbber" src="images/gif.gif" /></p>
-      </div>
-      <div id="message" style="display: none"></div>
+      <div id="loading" style="display:none"></div>
+      <div id="message" style="display:none"></div>
+      <dl id="page_info">
+        <dt>URL</dt>
+        <dd id="url"></dd>
+      </dl>
+      <div>
+        <a id="metoo_button" href="#">미투</a>
+        <a id="metoo_count" href="#"></a>
+        <!-- 9명 영역(profile allocated users) -->
+        <span id="metoo_list"></span>
+        <a id="metoo_list_to_post" href="">&gt;&gt;</a>
+	    </div>
     </div>
-    <button onclick="Metoo.Popup.close();" >X</button>
+    <button onclick="Metoo.Popup.close();" >닫기</button>
   </body>
 </html>

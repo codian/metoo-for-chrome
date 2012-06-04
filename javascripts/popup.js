@@ -45,14 +45,14 @@ Metoo.Popup.updatePageInfo = function() {
   
   // console.log(Metoo.Popup.pageInfo);
   
-  url = Metoo.Popup.pageInfo.normalizedUrl;
-  $("#url").html(url);
-  
-  metooCount = Metoo.Popup.pageInfo.metooCount;
-  $("#metoo_count").html(metooCount);
+  $("#title").html(Metoo.Popup.pageInfo.title);
 };
 
 Metoo.Popup.updateMetooFriends = function() {
+  // 미투 수 표시
+  var metooCount = Metoo.Popup.pageInfo.metooCount;
+  $("#metoo_count").html(metooCount);
+
   if (!Metoo.Popup.pageInfo) return;
   if (!Metoo.Popup.pageInfo.postId) return;
   
@@ -60,15 +60,25 @@ Metoo.Popup.updateMetooFriends = function() {
     success: function(data) {
       console.log(data);
     
-      for (var key in data.result.metooFriendList) {
+      $.each(data.result.metooFriendList, function(key) {
         var friend = data.result.metooFriendList[key];
-        $("#metoo_list").append("<a href=\"http://me2day.net/" + friend.userId +
+        
+        // 미투한 친구 프로필 목록
+        $("#metoo_list").append("<a href=\"#\" id=\"profile_" + friend.userId + "\"" +
           " title=\"" + friend.nickname + "\">" +
-          "<img src=\"" + friend.profileImage + " alt=\"" + friend.nickname + "\"" +
+          "<img src=\"" + friend.profileImage + "\" alt=\"" + friend.nickname + "\"" +
           "width=\"30\" height=\"30\">" +
           "</a>"
         );
-      }
+        
+        // 프로필 클릭시 해당 사용자 마이미투로 탭 열기
+        $("#profile_" + friend.userId).click(function() {
+          chrome.tabs.create(
+            { 'url': "http://me2day.net/" + friend.userId },
+            function(tab) { Metoo.Popup.close(); }
+          );
+        });
+      });
     },
     error: function(data) {
     }
@@ -77,9 +87,10 @@ Metoo.Popup.updateMetooFriends = function() {
   if (Metoo.Popup.pageInfo.postUrl) {
     $("#metoo_list_to_post").click(function() {
       console.log("#metoo_list_to_post");
-      chrome.tabs.create({'url': Metoo.Popup.pageInfo.postUrl}, function(tab) {
-        // Tab opened.
-      });
+      chrome.tabs.create(
+        { 'url': Metoo.Popup.pageInfo.postUrl }, 
+        function(tab) { Metoo.Popup.close(); }
+      );
     });
   }
 };

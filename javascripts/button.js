@@ -114,6 +114,7 @@ Metoo.Button.updateMetoo = function(tab) {
         metooStatus: metooStatus,
         postId: postId,
         postUrl: postUrl,
+        title: tab.title,
         securityToken: st
       });
       
@@ -167,7 +168,7 @@ Metoo.Button.metoo = function(tab, sendResponse) {
     }
   };
   if (tab.title && tab.title.length > 0) {
-    params.pageTitle = tab.title 
+    params.pageTitle = pageInfo.title 
   } 
   
   Metoo.API.metoo(tab.url, token, params);

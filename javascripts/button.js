@@ -157,7 +157,8 @@ Metoo.Button.metoo = function(tab, sendResponse) {
       
       sendResponse({
         result: true,
-        message: data.alert
+        message: data.alert,
+        data: Metoo.PageInfo.get(tab.url)
       });
     },
     error: function(data) {

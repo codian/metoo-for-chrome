@@ -31,7 +31,7 @@ Metoo.Popup.init = function () {
           if (resp.error == 0) {
             Metoo.Popup.pageInfo = resp.result;
             Metoo.Popup.updatePageInfo();
-            Metoo.Popup.updateMetooFriends();
+            Metoo.Popup.updateMetoo();
             Metoo.Popup.updateComments();
           }
         }
@@ -48,7 +48,7 @@ Metoo.Popup.updatePageInfo = function() {
   $("#title").html(Metoo.Popup.pageInfo.title);
 };
 
-Metoo.Popup.updateMetooFriends = function() {
+Metoo.Popup.updateMetoo = function() {
   // 미투 수 표시
   var metooCount = Metoo.Popup.pageInfo.metooCount;
   $("#metoo_count").html(metooCount);
@@ -109,8 +109,11 @@ Metoo.Popup.onclick = function() {
         window: window
       }, 
       function (resp) {
-        backgroundPage.console.log("receive Metoo result:", resp);
+        // backgroundPage.console.log("receive Metoo result:", resp);
         if (resp.result) {
+          Metoo.Popup.pageInfo = resp.data;
+          Metoo.Popup.updateMetoo();
+
           Metoo.Button.showMessage("미투했습니다.");
         } else {
           Metoo.Button.showMessage(resp.message);

@@ -17,5 +17,5 @@
   "incognito": "split",
   "name": "Metoo Button",
   "permissions": ["http://*/*", "https://*/*", "tabs", "cookies"],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

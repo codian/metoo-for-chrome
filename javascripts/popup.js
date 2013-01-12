@@ -13,7 +13,9 @@ Metoo.Popup.init = function () {
     }
   });
   
-  $("#metoo_button").click(Metoo.Popup.onclick);
+  $("#close_popup").click(Metoo.Popup.close);
+  $("#metoo_button").click(Metoo.Popup.metoo);
+  $("#write_comment").click(Metoo.Popup.writeComment);
   
   // 페이지 정보 조회/표시
   chrome.windows.getCurrent(function(window) {
@@ -98,8 +100,8 @@ Metoo.Popup.updateMetoo = function() {
 Metoo.Popup.updateComments = function() {
 };
 
-Metoo.Popup.onclick = function() {
-  console.log("Metoo.Popup.onclick");
+Metoo.Popup.metoo = function() {
+  console.log("Metoo.Popup.metoo");
 
   // 미투 버튼 클릭
   chrome.windows.getCurrent(function(window) {
@@ -114,20 +116,49 @@ Metoo.Popup.onclick = function() {
           Metoo.Popup.pageInfo = resp.data;
           Metoo.Popup.updateMetoo();
 
-          Metoo.Button.showMessage("미투했습니다.");
+          Metoo.Popup.showMessage("미투했습니다.");
         } else {
-          Metoo.Button.showMessage(resp.message);
+          Metoo.Popup.showMessage(resp.message);
         }
       });
   });
 }
 
+Metoo.Popup.writeComment = function() {
+  // console.log("Metoo.Popup.writeComment");
+  
+  var body = $("#comment_body").val();
+  var pingback = $("#pingback").val() == "on";
+  
+  // 미투 버튼 클릭
+  chrome.windows.getCurrent(function(window) {
+    chrome.extension.sendRequest(
+      {
+        req: "writeComment",
+        body: body,
+        pingback: pingback,
+        window: window
+      }, 
+      function (resp) {
+        // backgroundPage.console.log("receive writeComment result:", resp);
+        if (resp.result) {
+          Metoo.Popup.showMessage("댓글을 작성했습니다.");
+        } else {
+          Metoo.Popup.showMessage(resp.message);
+        }
+      });
+  });
+};
+
 Metoo.Popup.showMessage = function(message) {
-  $("message").html(message);
-  $("loading").hide();
-  $("message").show();
+  // console.log("showMessage", message);
+
+  $("#message").html(message);
+  $("#message").show();
 };
 
 Metoo.Popup.close = function() {
   window.close();
 };
+
+document.addEventListener("DOMContentLoaded", Metoo.Popup.init, false);

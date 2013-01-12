@@ -58,7 +58,7 @@ Metoo.API.metoo = function(url, token, options) {
     'security_token': token
   };
   if (options['pluginKey']) {
-    params['pluginKey'] = options['pluginKey'];
+    params['plugin_key'] = options['pluginKey'];
   }
   if (options['pageTitle']) {
     params['title'] = options['pageTitle'];
@@ -122,7 +122,51 @@ Metoo.API.getMetooFriendList = function(postId, count, options) {
     },
     error: errorHandler
   });
-}
+};
+
+Metoo.API.writeComment = function(url, token, options) {
+  Metoo.API.writeLog("Metoo.API.writeComment", url, token, options);
+
+  options = Metoo.API.defaultOptions(options);
+  
+  params = {
+    'url': url,
+    'security_token': token,
+    'body': options.body,
+    'pingback': options.pingback ? 'true' : 'false'
+  };
+  if (options['pluginKey']) {
+    params['plugin_key'] = options['pluginKey'];
+  }
+  if (options['pageTitle']) {
+    params['title'] = options['pageTitle'];
+  }  
+  
+  var errorHandler = function(data) {
+    options.error(data);
+    console.log("ERROR:", data);
+  }
+
+  $.ajax({
+    url: "http://plugin.me2day.net/v1/comment/create_comment.json",
+    type: "POST",
+    data: params,
+    complete: function(jqXHR, textStatus) {
+      Metoo.API.writeLog("CALL(" + "textStatus" + ") v1/comment/create_comment.json", {
+        "params": params,
+        "responseText": jqXHR.responseText
+      });
+    },
+    success: function(data) {
+      if (data.code != 0) {
+        errorHandler(data.message);
+        return
+      }
+      options.success(data);
+    },
+    error: errorHandler
+  });
+};
 
 Metoo.API.getSecurityToken = function(data) {
   if (data && data.result && data.result.securityToken) {

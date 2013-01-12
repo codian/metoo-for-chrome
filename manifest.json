@@ -1,5 +1,6 @@
 {
-  "background_page": "background.html",
+  "manifest_version": 2,
+  "background": { "page": "background.html"},
   "browser_action": {
     "default_icon": "images/icon19.dis.png",
     "default_popup": "popup.html",

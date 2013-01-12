@@ -35,13 +35,13 @@ Metoo.Button.init = function() {
 }
 
 Metoo.Button.handleRequest = function (request, sender, sendResponse) {
-  // console.log("Metoo.Button.handleRequest:", request, sender, sendResponse);
+  console.log("Metoo.Button.handleRequest:", request, sender, sendResponse);
   
   switch (request.req) {
+  // 미투하기 
   case "toggleMetoo":
     chrome.tabs.getSelected(request.window.id, function(tab) {
-      console.log("\t", tab);
-      // 미투하기 
+      //console.log("\t", tab);
       Metoo.Button.metoo(tab, function(resp) {
         sendResponse(resp);
       });
@@ -55,6 +55,20 @@ Metoo.Button.handleRequest = function (request, sender, sendResponse) {
       result: pageInfo
     });
     break;
+    
+  // 댓글 쓰기
+  case "writeComment":
+    chrome.tabs.getSelected(request.window.id, function(tab) {
+      // console.log("\t", tab);
+      Metoo.Button.writeComment(tab, {
+          body: request.body,
+          pingback: request.pingback,
+        },
+        function(resp) {
+          sendResponse(resp);
+        }
+      );
+    });
     
   default:
     console.log("Unknown request to Metoo.Button.handleRequest: ", 
@@ -173,6 +187,44 @@ Metoo.Button.metoo = function(tab, sendResponse) {
   } 
   
   Metoo.API.metoo(tab.url, token, params);
+};
+
+Metoo.Button.writeComment = function(tab, data, sendResponse) {
+  if (!tab) return;
+  if (!tab.url || !Metoo.Button.isUrl(tab.url)) return;
+  
+  var pageInfo = Metoo.PageInfo.get(tab.url);
+  if (!pageInfo) return;
+
+  // console.log("Metoo.Button.metoo:", tab);
+  
+  var token = pageInfo.securityToken;
+  
+  var params = {
+    success: function(data) {
+      sendResponse({
+        result: true,
+        message: "",
+        data: pageInfo
+      });
+    },
+    error: function(data) {
+      sendResponse({
+        result: false,
+        message: data,
+        data: {}
+      });
+    }
+  };
+  
+  params.body = data.body;
+  params.pingback = data.pingback;
+  params.pluginKey = pageInfo.pluginKey;
+  if (tab.title && tab.title.length > 0) {
+    params.pageTitle = pageInfo.title;
+  } 
+
+  Metoo.API.writeComment(tab.url, token, params);
 };
 
 Metoo.Button.changeButton = function(tabId, metoo, icon) {

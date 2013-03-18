@@ -56,20 +56,6 @@ Metoo.Button.handleRequest = function (request, sender, sendResponse) {
     });
     break;
     
-  // 댓글 쓰기
-  case "writeComment":
-    chrome.tabs.getSelected(request.window.id, function(tab) {
-      // console.log("\t", tab);
-      Metoo.Button.writeComment(tab, {
-          body: request.body,
-          pingback: request.pingback,
-        },
-        function(resp) {
-          sendResponse(resp);
-        }
-      );
-    });
-    
   default:
     console.log("Unknown request to Metoo.Button.handleRequest: ", 
                 request, sender, sendResponse);
@@ -98,8 +84,6 @@ Metoo.Button.updateMetoo = function(tab) {
 
   Metoo.API.getWebpageInfo(tab.url, {
     success: function(data) {
-      console.log(data);
-      
       // metooStatus 
       //   "1" - 이미 미투한 상태
       //   "2" - 미투하지 않은 상태
@@ -150,12 +134,11 @@ Metoo.Button.metoo = function(tab, sendResponse) {
   var pageInfo = Metoo.PageInfo.get(tab.url);
   if (!pageInfo) return;
 
-  // console.log("Metoo.Button.metoo:", tab);
-  
   var token = pageInfo.securityToken;
   
   var params = {
     success: function(data) {
+      Metoo.API.writeLog("Metoo.Button.metoo", "SUCCESS METOO");
       var metoo = data.result.postInfo.metooCount;
       Metoo.Button.changeButton(tab.id, metoo, "on");
       
@@ -176,6 +159,7 @@ Metoo.Button.metoo = function(tab, sendResponse) {
       });
     },
     error: function(data) {
+      console.log("FAIL METOO");
       sendResponse({
         result: false,
         message: data
@@ -187,44 +171,6 @@ Metoo.Button.metoo = function(tab, sendResponse) {
   } 
   
   Metoo.API.metoo(tab.url, token, params);
-};
-
-Metoo.Button.writeComment = function(tab, data, sendResponse) {
-  if (!tab) return;
-  if (!tab.url || !Metoo.Button.isUrl(tab.url)) return;
-  
-  var pageInfo = Metoo.PageInfo.get(tab.url);
-  if (!pageInfo) return;
-
-  // console.log("Metoo.Button.metoo:", tab);
-  
-  var token = pageInfo.securityToken;
-  
-  var params = {
-    success: function(data) {
-      sendResponse({
-        result: true,
-        message: "",
-        data: pageInfo
-      });
-    },
-    error: function(data) {
-      sendResponse({
-        result: false,
-        message: data,
-        data: {}
-      });
-    }
-  };
-  
-  params.body = data.body;
-  params.pingback = data.pingback;
-  params.pluginKey = pageInfo.pluginKey;
-  if (tab.title && tab.title.length > 0) {
-    params.pageTitle = pageInfo.title;
-  } 
-
-  Metoo.API.writeComment(tab.url, token, params);
 };
 
 Metoo.Button.changeButton = function(tabId, metoo, icon) {

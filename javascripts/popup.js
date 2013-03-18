@@ -14,8 +14,6 @@ Metoo.Popup.init = function () {
   });
   
   $("#close_popup").click(Metoo.Popup.close);
-  $("#metoo_button").click(Metoo.Popup.metoo);
-  $("#write_comment").click(Metoo.Popup.writeComment);
   
   // 페이지 정보 조회/표시
   chrome.windows.getCurrent(function(window) {
@@ -32,9 +30,9 @@ Metoo.Popup.init = function () {
           
           if (resp.error == 0) {
             Metoo.Popup.pageInfo = resp.result;
-            Metoo.Popup.updatePageInfo();
-            Metoo.Popup.updateMetoo();
-            Metoo.Popup.updateComments();
+
+            // 미투하기
+            Metoo.Popup.metoo();
           }
         }
       )      
@@ -42,69 +40,12 @@ Metoo.Popup.init = function () {
   });
 };
 
-Metoo.Popup.updatePageInfo = function() {
-  if (!Metoo.Popup.pageInfo) return;
-  
-  // console.log(Metoo.Popup.pageInfo);
-  
-  $("#title").html(Metoo.Popup.pageInfo.title);
-};
-
-Metoo.Popup.updateMetoo = function() {
-  // 미투 수 표시
-  var metooCount = Metoo.Popup.pageInfo.metooCount;
-  $("#metoo_count").html(metooCount);
-
-  if (!Metoo.Popup.pageInfo) return;
-  if (!Metoo.Popup.pageInfo.postId) return;
-  
-  Metoo.API.getMetooFriendList(Metoo.Popup.pageInfo.postId, 5, {
-    success: function(data) {
-      console.log(data);
-    
-      $.each(data.result.metooFriendList, function(key) {
-        var friend = data.result.metooFriendList[key];
-        
-        // 미투한 친구 프로필 목록
-        $("#metoo_list").append("<a href=\"#\" id=\"profile_" + friend.userId + "\"" +
-          " title=\"" + friend.nickname + "\">" +
-          "<img src=\"" + friend.profileImage + "\" alt=\"" + friend.nickname + "\"" +
-          "width=\"30\" height=\"30\">" +
-          "</a>"
-        );
-        
-        // 프로필 클릭시 해당 사용자 마이미투로 탭 열기
-        $("#profile_" + friend.userId).click(function() {
-          chrome.tabs.create(
-            { 'url': "http://me2day.net/" + friend.userId },
-            function(tab) { Metoo.Popup.close(); }
-          );
-        });
-      });
-    },
-    error: function(data) {
-    }
-  });
-  
-  if (Metoo.Popup.pageInfo.postUrl) {
-    $("#metoo_list_to_post").click(function() {
-      console.log("#metoo_list_to_post");
-      chrome.tabs.create(
-        { 'url': Metoo.Popup.pageInfo.postUrl }, 
-        function(tab) { Metoo.Popup.close(); }
-      );
-    });
-  }
-};
-
-Metoo.Popup.updateComments = function() {
-};
-
 Metoo.Popup.metoo = function() {
-  console.log("Metoo.Popup.metoo");
+  Metoo.API.writeLog("POPUP", "Metoo.Popup.metoo");
 
   // 미투 버튼 클릭
   chrome.windows.getCurrent(function(window) {
+    console.log("send metoo request");
     chrome.extension.sendRequest(
       {
         req: "toggleMetoo",
@@ -114,41 +55,13 @@ Metoo.Popup.metoo = function() {
         // backgroundPage.console.log("receive Metoo result:", resp);
         if (resp.result) {
           Metoo.Popup.pageInfo = resp.data;
-          Metoo.Popup.updateMetoo();
-
-          Metoo.Popup.showMessage("미투했습니다.");
-        } else {
           Metoo.Popup.showMessage(resp.message);
+        } else {
+          Metoo.Popup.showMessage(resp.alert);
         }
       });
   });
 }
-
-Metoo.Popup.writeComment = function() {
-  // console.log("Metoo.Popup.writeComment");
-  
-  var body = $("#comment_body").val();
-  var pingback = $("#pingback").val() == "on";
-  
-  // 미투 버튼 클릭
-  chrome.windows.getCurrent(function(window) {
-    chrome.extension.sendRequest(
-      {
-        req: "writeComment",
-        body: body,
-        pingback: pingback,
-        window: window
-      }, 
-      function (resp) {
-        // backgroundPage.console.log("receive writeComment result:", resp);
-        if (resp.result) {
-          Metoo.Popup.showMessage("댓글을 작성했습니다.");
-        } else {
-          Metoo.Popup.showMessage(resp.message);
-        }
-      });
-  });
-};
 
 Metoo.Popup.showMessage = function(message) {
   // console.log("showMessage", message);

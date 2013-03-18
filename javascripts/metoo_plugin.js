@@ -3,6 +3,8 @@ Metoo.API = Metoo.API || {};
 
 Metoo.API.emptyFunction = function() {};
 
+Metoo.API.DEBUGMODE = false;
+
 Metoo.API.defaultOptions = function(options) {
   options = options || {}
   options.error = options.error || Metoo.API.emptyFunction;
@@ -179,6 +181,8 @@ Metoo.API.getSecurityToken = function(data) {
 };
 
 Metoo.API.writeLog = function(subject, data) {
+  console.log("DEBUGMODE: " + Metoo.API.DEBUGMODE);
+  if (Metoo.API.DEBUGMODE == false) return; 
   console.log(subject);
   for (key in data) {
     console.log("    " + key + ": ", data[key]);
